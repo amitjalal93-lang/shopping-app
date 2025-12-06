@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "@/slices/cartSlices.js";
 import { toast } from "react-toastify";
 import { useParams, useRouter } from "next/navigation";
-import Button from "@/components/Button";
+import Button from "@/app/components/Button";
 
 export default function ProductDetails() {
   const { id } = useParams();

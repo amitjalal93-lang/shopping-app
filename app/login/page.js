@@ -1,6 +1,9 @@
 "use client";
 
+import { apiPostRequest } from "@/utils/api";
+import { setAccessTokenLocalStorage } from "@/utils/localstorage";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import { useForm } from "react-hook-form";
@@ -12,11 +15,23 @@ export default function Signup() {
     formState: { errors },
   } = useForm();
 
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
-    alert("Form submitted successfully!");
+  const onSubmit = async (data) => {
+    const response = await apiPostRequest("auth/login/", data);
+    const { token, user } = response?.data || {};
+    console.log("API Response:", response);
+    const isAdmin = user?.isAdmin;
+    if (token) {
+      setAccessTokenLocalStorage(token);
+    }
+    if (isAdmin) {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/");
+    }
   };
 
   return (

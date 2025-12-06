@@ -7,7 +7,8 @@ import { addToCart } from "../slices/cartSlices.js";
 import { useRouter } from "next/navigation";
 import { isUserLoggedIn } from "@/utils/auth.js";
 import { toast } from "react-toastify";
-import Button from "@/components/Button.jsx";
+import Button from "@/app/components/Button.jsx";
+import { apiGetRequest } from "@/utils/api.js";
 
 const data = [
   {
@@ -86,14 +87,21 @@ export default function Page() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("https://fakestoreapi.com/products");
-        const data = await res.json();
-        const productWithQty = data.map((item) => ({ ...item, qty: 1 }));
-        setProducts(productWithQty);
+        setLoading(true);
+        const res = await apiGetRequest("/products");
+
+        const { pagination, products } = res?.data || {};
+        console.log("Products fetched:", products);
+        setProducts(
+          products
+            ? products?.map((product) => ({ ...product, title: product.name }))
+            : []
+        );
       } catch (err) {
         console.log("API error:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     load();
@@ -198,14 +206,14 @@ export default function Page() {
         <p className="text-center text-gray-400">Loading products...</p>
       ) : (
         <div className="grid grid-cols sm:grid-cols-2 md:grid-cols-4 gap-4 my-8">
-          {products.map((p) => (
+          {products?.map((p) => (
             <motion.div
-              key={p.id}
+              key={p._id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
               className="bg-white border border-gray-300  rounded-xl p-3 shadow hover:shadow-lg cursor-pointer"
-              onClick={() => router.push(`/products/${p.id}`)}
+              onClick={() => router.push(`/products/${p._id}`)}
             >
               <img
                 src={p.image}
@@ -218,7 +226,7 @@ export default function Page() {
               </h2>
 
               {/* items category */}
-              <p className="text-xs text-gray-500 mt-1">{p.category}</p>
+              <p className="text-xs text-gray-500 mt-1">{p.category?.name}</p>
 
               {/* items description */}
               <p className="text-[12px] text-gray-600 line-clamp-2 mt-1">
@@ -227,11 +235,9 @@ export default function Page() {
 
               {/* items rating */}
               <div className="flex items-center gap-1 mt-2">
-                <span className="text-yellow-500 text-sm">
-                  ★ {p.rating.rate}
-                </span>
+                <span className="text-yellow-500 text-sm">★ {p.rating}</span>
                 <span className="text-gray-500 text-xs">
-                  ({p.rating.count})
+                  ({p.userratingcount})
                 </span>
               </div>
 
@@ -240,7 +246,7 @@ export default function Page() {
                 {new Intl.NumberFormat("en-IN", {
                   style: "currency",
                   currency: "INR",
-                }).format(p.price * 84)}
+                }).format(p.price)}
               </p>
 
               {/* buy buttons  */}
