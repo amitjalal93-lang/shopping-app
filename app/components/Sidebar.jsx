@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { isUserLoggedIn } from "@/utils/auth";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { useUserStore } from "@/store/user";
 const EcommerceHeader = () => {
   const [open, setOpen] = useState(false);
   const [sidebar, setSidebar] = useState(false);
@@ -14,7 +15,7 @@ const EcommerceHeader = () => {
 
   const isUserLogin = isUserLoggedIn();
 
-  const items = useSelector((state) => state.cart.items);
+  const { cartCounter } = useUserStore();
 
   // Load user from localStorage
   useEffect(() => {
@@ -22,13 +23,12 @@ const EcommerceHeader = () => {
     const googleUser = JSON.parse(localStorage.getItem("googleUser"));
 
     if (googleUser?.loggedIn) setUser(googleUser);
-    else if (normalUser?.loggedIn) setUser(normalUser);
+    else if (normalUser) setUser(normalUser);
   }, []);
 
   // LOGOUT
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("googleUser");
+    localStorage.clear();
     setUser(null);
     router.push("/register");
   };
@@ -95,9 +95,9 @@ const EcommerceHeader = () => {
             }}
           >
             Cart
-            {items.length > 0 && (
+            {cartCounter > 0 && (
               <span className="bg-orange-500 text-white text-xs px-2 rounded-full">
-                {items.length}
+                {cartCounter}
               </span>
             )}
           </button>
@@ -110,9 +110,9 @@ const EcommerceHeader = () => {
           ) : (
             <div className="flex gap-1 items-center relative">
               <Menu size={28} />
-              {items.length > 0 && (
+              {cartCounter > 0 && (
                 <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full absolute -top-2 -right-4">
-                  {items.length}
+                  {cartCounter}
                 </span>
               )}
             </div>
@@ -219,12 +219,11 @@ const EcommerceHeader = () => {
                 />
               )}
 
-              <p className="text-lg font-medium">{user?.name}</p>
+              <p className="text-lg font-medium">{user?.fullName}</p>
 
               <p>{user?.email}</p>
 
-              {user?.number && <p>📞 {user.number}</p>}
-              {user?.gender && <p>Gender: {user.gender}</p>}
+              {user?.mobile && <p>📞 {user.mobile}</p>}
 
               {/* SETTINGS */}
               <div className="mt-4 text-left px-2">

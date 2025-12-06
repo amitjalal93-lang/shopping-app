@@ -27,6 +27,15 @@ export default function RootLayout({ children }) {
               >
                 🔍Category
               </button>
+              <button
+                className="hover:text-blue-400 hover:bg-gray-700 px-4 py-2 rounded-lg"
+                onClick={() => {
+                  localStorage.clear();
+                  router.push("/");
+                }}
+              >
+                Logout
+              </button>
             </div>
             {/* produts items */}
             <div className="flex-1 h-full overflow-y-auto">{children}</div>

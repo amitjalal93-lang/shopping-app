@@ -1,4 +1,5 @@
 "use client";
+import { apiGetRequest } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -6,13 +7,12 @@ export default function NewArrivalsPage() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => res.json())
-      .then((data) => {
-        // Random 6 products
-        const randomSix = data.sort(() => 0.5 - Math.random()).slice(0, 6);
-        setProducts(randomSix);
-      });
+    const fetchProducts = async () => {
+      const res = await apiGetRequest("/products");
+      const { products, pagination } = res?.data || {};
+      setProducts(products || []);
+    };
+    fetchProducts();
   }, []);
   const router = useRouter();
   return (
@@ -29,12 +29,12 @@ export default function NewArrivalsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((p) => (
           <div
-            key={p.id}
+            key={p._id}
             className="border p-4 rounded-xl shadow hover:shadow-lg transition"
           >
             <img src={p.image} className="h-36 mx-auto object-contain" />
-            <h2 className="font-semibold mt-2 line-clamp-2">{p.title}</h2>
-            <p className="text-orange-600 font-bold mt-1">₹{p.price * 85}</p>
+            <h2 className="font-semibold mt-2 line-clamp-2">{p.name}</h2>
+            <p className="text-orange-600 font-bold mt-1">₹{p.price}</p>
           </div>
         ))}
       </div>

@@ -7,6 +7,11 @@ import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/app/firebase";
+import { apiPostRequest } from "@/utils/api";
+import {
+  setAccessTokenLocalStorage,
+  setUserLocalStorage,
+} from "@/utils/localstorage";
 
 export default function RegistrationForm() {
   const {
@@ -29,19 +34,22 @@ export default function RegistrationForm() {
   }, []);
 
   // NORMAL FORM SUBMIT
-  const onSubmit = (data) => {
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        name: data.name,
-        email: data.email,
-        number: data.number,
-        gender: data.gender,
-        photo: null, // Normal user has no photo
-        loggedIn: true,
-      })
-    );
+  const onSubmit = async (data) => {
+    const newData = {
+      ...data,
+    };
 
+    delete newData.terms;
+
+    const response = await apiPostRequest("auth/signup", newData);
+
+    const { user, token } = response?.data || {};
+    setAccessTokenLocalStorage(token);
+    setUserLocalStorage({
+      email: user.email,
+      fullName: user.fullName,
+      mobile: user.mobile,
+    });
     router.push("/");
   };
 
@@ -85,11 +93,13 @@ export default function RegistrationForm() {
           <label className="block mb-1 font-medium">Full Name</label>
           <input
             type="text"
-            {...register("name", { required: "Name is required" })}
+            {...register("fullName", { required: "Name is required" })}
             className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
           />
-          {errors.name && (
-            <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>
+          {errors.fullName && (
+            <p className="text-red-400 text-sm mt-1">
+              {errors.fullName.message}
+            </p>
           )}
         </div>
 
@@ -142,14 +152,14 @@ export default function RegistrationForm() {
           <input
             type="number"
             placeholder="Enter your number..."
-            {...register("number", {
-              required: "Number is required",
+            {...register("mobile", {
+              required: "Mobile is required",
               minLength: { value: 10, message: "Must be 10 digits" },
             })}
             className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
           />
-          {errors.number && (
-            <p className="text-red-400 text-sm mt-1">{errors.number.message}</p>
+          {errors.mobile && (
+            <p className="text-red-400 text-sm mt-1">{errors.mobile.message}</p>
           )}
         </div>
 
@@ -161,9 +171,9 @@ export default function RegistrationForm() {
             className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
           >
             <option value="">Select...</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
           </select>
           {errors.gender && (
             <p className="text-red-400 text-sm mt-1">{errors.gender.message}</p>

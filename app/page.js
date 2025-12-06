@@ -2,13 +2,12 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-import { useDispatch } from "react-redux";
-import { addToCart } from "../slices/cartSlices.js";
 import { useRouter } from "next/navigation";
 import { isUserLoggedIn } from "@/utils/auth.js";
 import { toast } from "react-toastify";
 import Button from "@/app/components/Button.jsx";
-import { apiGetRequest } from "@/utils/api.js";
+import { apiGetRequest, apiPostRequestAuthenticated } from "@/utils/api.js";
+import { useUserStore } from "@/store/user.js";
 
 const data = [
   {
@@ -51,13 +50,18 @@ const data = [
 
 export default function Page() {
   //
-  const dispatch = useDispatch();
   const router = useRouter();
+  const { setCartCounter } = useUserStore();
 
   const isUserLogin = isUserLoggedIn();
-  const handleAdd = (item) => {
+  const handleAdd = async (item) => {
     if (isUserLogin) {
-      dispatch(addToCart(item));
+      const response = await apiPostRequestAuthenticated("/cart/add", {
+        productId: item._id,
+        quantity: 1,
+      });
+      const { cart } = response?.data || {};
+      setCartCounter(cart.length);
       toast.success("Item added to cart");
     } else {
       toast.error("Please login to add items to cart");
@@ -153,23 +157,7 @@ export default function Page() {
                     className="w-fit! px-4 py-2 md:px-6 md:py-3 bg-orange-500 text-white rounded-lg shadow"
                     text={item.button}
                     onClick={() => {
-                      dispatch(
-                        addToCart({
-                          id: item.id,
-                          title:
-                            item.title1 + " " + item.title2 + " " + item.title3,
-                          image: item.img,
-                          price: item.price,
-                          basePrice: item.basePrice,
-                          description: item.description,
-                          qty: 1,
-                          size: item.size || "M",
-                          category: "fashion",
-                        })
-                      );
-                      {
-                      }
-                      router.push("/cart");
+                      router.push("/");
                     }}
                   />
                 </div>

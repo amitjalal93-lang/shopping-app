@@ -1,22 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { addToCart } from "@/slices/cartSlices.js";
 import { toast } from "react-toastify";
 import { useParams, useRouter } from "next/navigation";
 import Button from "@/app/components/Button";
+import { apiGetRequest, apiPostRequestAuthenticated } from "@/utils/api";
+import { useUserStore } from "@/store/user";
 
 export default function ProductDetails() {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
-  const dispatch = useDispatch();
+  const { setCartCounter } = useUserStore();
 
   useEffect(() => {
     const load = async () => {
-      const res = await fetch(`https://fakestoreapi.com/products/${id}`);
-      const data = await res.json();
-      setProduct(data);
+      const res = await apiGetRequest(`/products/${id}`);
+      const product = res?.data || {};
+      setProduct(product);
     };
     load();
   }, [id]);
@@ -40,6 +40,17 @@ export default function ProductDetails() {
     "Scratch and damage resistant",
     "Latest updated version model",
   ];
+
+  const handleCart = async () => {
+    const response = await apiPostRequestAuthenticated("/cart/add", {
+      productId: product._id,
+      quantity: 1,
+    });
+    const { cart } = response?.data || {};
+    setCartCounter(cart.length);
+    toast.success("Item added to cart");
+  };
+
   return (
     <div className="p-5 md:p-10 max-w-5xl mx-auto">
       {/* Back Button */}
@@ -67,14 +78,14 @@ export default function ProductDetails() {
             {product.title}
           </h1>
 
-          <p className="text-gray-500 text-sm mt-2">{product.category}</p>
+          <p className="text-gray-500 text-sm mt-2">{product.category?.name}</p>
 
           <div className="flex items-center gap-2 mt-3">
             <span className="text-yellow-500 font-bold">
-              ★ {product.rating.rate}
+              ★ {product.rating}
             </span>
             <span className="text-gray-500 text-sm">
-              ({product.rating.count} reviews)
+              ({product.userratingcount} reviews)
             </span>
           </div>
 
@@ -84,18 +95,12 @@ export default function ProductDetails() {
 
           {/* Price */}
           <p className="text-orange-600 mt-5 text-3xl font-bold">
-            ₹{(product.price * 84).toFixed(0)}
+            ₹{product.price.toFixed(0)}
           </p>
 
           {/* Add to Cart */}
           <div className="w-fit mt-3">
-            <Button
-              text="Add to Cart"
-              onClick={() => {
-                dispatch(addToCart({ ...product, qty: 1 }));
-                toast.success("Item added to cart");
-              }}
-            />
+            <Button text="Add to Cart" onClick={handleCart} />
           </div>
         </div>
       </div>
