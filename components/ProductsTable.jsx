@@ -2,6 +2,7 @@
 import Button from "@/app/components/Button";
 import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
+import Image from "next/image";
 import React from "react";
 
 const ProductsTable = ({
@@ -39,10 +40,12 @@ const ProductsTable = ({
               className="border-b border-gray-300 hover:bg-gray-50"
             >
               <td className="p-3">
-                <img
+                <Image
                   src={product.image}
                   alt={product.name}
                   className="w-16 h-16 object-contain"
+                  width={100}
+                  height={100}
                 />
               </td>
               <td className="p-3">

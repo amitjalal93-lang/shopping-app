@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
+import Image from "next/image";
 import React from "react";
 
 const CategoriesTable = ({ categories, loading, onEdit, onDelete }) => {
@@ -13,6 +14,7 @@ const CategoriesTable = ({ categories, loading, onEdit, onDelete }) => {
       <table className="w-full border-collapse bg-white rounded-lg shadow">
         <thead>
           <tr className="bg-gray-200 border-b-2 border-gray-300">
+            <th className="p-3 text-left text-sm font-semibold">Image</th>
             <th className="p-3 text-left text-sm font-semibold">Name</th>
             <th className="p-3 text-left text-sm font-semibold">Description</th>
             <th className="p-3 text-left text-sm font-semibold">Actions</th>
@@ -27,6 +29,15 @@ const CategoriesTable = ({ categories, loading, onEdit, onDelete }) => {
               transition={{ duration: 0.3 }}
               className="border-b border-gray-300 hover:bg-gray-50"
             >
+              <td className="p-3">
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  className="w-16 h-16 object-contain"
+                  width={64}
+                  height={64}
+                />
+              </td>
               <td className="p-3">
                 <p className="text-sm font-semibold text-gray-800">
                   {category.name}

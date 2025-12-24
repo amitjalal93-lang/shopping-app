@@ -12,23 +12,28 @@ export default function RootLayout({ children }) {
       <body>
         <Provider store={store}>
           <div className="flex h-screen">
-            <div className="h-full w-[250px] bg-[#1e1e1e] flex flex-col items-center py-6 gap-8 text-white">
-              <h1 className="text-2xl font-bold">Dashboard</h1>
+            <div
+              className="fixed bottom-0  left-0  w-full md:static md:w-[250px] bg-[#1e1e1e] flex  md:flex-col flex-row
+    justify-between   md:justify-start md:gap-6  items-center  py-3 md:py-6 text-white"
+            >
+              <h1 className="text-2xl font-bold hidden md:block">Dashboard</h1>
               <button
-                className="hover:text-blue-400 hover:bg-gray-700 px-4 py-2 rounded-lg"
+                className="hover:text-blue-400 hover:bg-gray-700 px-4 py-2 rounded-lg flex gap-2 items-center"
                 onClick={() => router.push("/admin/dashboard")}
               >
-                🏠Products
+                <span>🏠</span>
+                Products
               </button>
 
               <button
-                className="hover:text-blue-400 hover:bg-gray-700 px-4 py-2 rounded-lg"
+                className="hover:text-blue-400 hover:bg-gray-700 px-4 py-2 rounded-lg flex gap-2 items-center"
                 onClick={() => router.push("/admin/category")}
               >
-                🔍Category
+                <span>🔍</span>
+                Category
               </button>
               <button
-                className="hover:text-blue-400 hover:bg-gray-700 px-4 py-2 rounded-lg"
+                className="hover:text-blue-400 hover:bg-gray-700 px-4 py-2 rounded-lg "
                 onClick={() => {
                   localStorage.clear();
                   router.push("/");

@@ -8,6 +8,8 @@ import { toast } from "react-toastify";
 import Button from "@/app/components/Button.jsx";
 import { apiGetRequest, apiPostRequestAuthenticated } from "@/utils/api.js";
 import { useUserStore } from "@/store/user.js";
+import Pagination from "@/components/Pagination";
+import { useCategoryStore } from "@/store/categoryStore";
 
 const data = [
   {
@@ -52,6 +54,10 @@ export default function Page() {
   //
   const router = useRouter();
   const { setCartCounter } = useUserStore();
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+
+  const { categoryId } = useCategoryStore();
 
   const isUserLogin = isUserLoggedIn();
   const handleAdd = async (item) => {
@@ -90,26 +96,31 @@ export default function Page() {
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const res = await apiGetRequest("/products");
-
+        const res = await apiGetRequest(
+          `/products?page=${page}&limit=15&category=${categoryId}`
+        );
         const { pagination, products } = res?.data || {};
-        console.log("Products fetched:", products);
+
         setProducts(
           products
-            ? products?.map((product) => ({ ...product, title: product.name }))
+            ? products.map((product) => ({
+                ...product,
+                title: product.name,
+              }))
             : []
         );
+
+        setPagination(pagination);
       } catch (err) {
         console.log("API error:", err);
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     load();
-  }, []);
+  }, [page, categoryId]);
 
   return (
     <div className="px-4 md:px-6">
@@ -254,6 +265,15 @@ export default function Page() {
             </motion.div>
           ))}
         </div>
+      )}
+      {/* next page prev page */}
+      {pagination && (
+        <Pagination
+          page={pagination.page}
+          pages={pagination.pages}
+          onPageChange={setPage}
+          isLoading={loading}
+        />
       )}
     </div>
   );

@@ -1,15 +1,16 @@
 "use client";
-import Button from "@/app/components/Button";
 import ProductsTable from "./ProductsTable";
 import ProductModal from "./ProductModal";
 import { Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   apiDeleteRequestAuthenticated,
+  apiFilePostRequestAuthenticated,
+  apiFilePutRequestAuthenticated,
   apiGetRequest,
-  apiPostRequestAuthenticated,
-  apiPutRequestAuthenticated,
 } from "@/utils/api";
+import Pagination from "./Pagination";
+import { useCategoryStore } from "@/store/categoryStore";
 
 const Adminproducts = () => {
   const [loading, setLoading] = useState(true);
@@ -17,18 +18,31 @@ const Adminproducts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
 
+  const { categoryId, setCategoryId } = useCategoryStore();
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
-        const res = await apiGetRequest("/products");
+        const url = categoryId
+          ? `/products?page=${page}&limit=10&category=${categoryId}`
+          : `/products?page=${page}&limit=10`;
+
+        const res = await apiGetRequest(url);
         const { pagination, products } = res?.data || {};
-        console.log("Products fetched:", products);
+
         setProducts(
           products
-            ? products?.map((product) => ({ ...product, title: product.name }))
+            ? products.map((product) => ({
+                ...product,
+                title: product.name,
+              }))
             : []
         );
+
+        setPagination(pagination);
       } catch (err) {
         console.log("API error:", err);
       }
@@ -36,7 +50,7 @@ const Adminproducts = () => {
     };
 
     load();
-  }, []);
+  }, [page, categoryId]); // 👈 categoryId add
 
   useEffect(() => {
     const getCategories = async () => {
@@ -71,13 +85,9 @@ const Adminproducts = () => {
   const handleSaveProduct = async (formData, productId) => {
     if (productId) {
       // Edit existing product
-      const response = await apiPutRequestAuthenticated(
+      const response = await apiFilePutRequestAuthenticated(
         `/products/${productId}`,
-        {
-          ...formData,
-          name: formData.title,
-          category: formData.category._id,
-        }
+        formData
       );
 
       const product = response?.data || {};
@@ -89,19 +99,12 @@ const Adminproducts = () => {
     } else {
       // Add new product
 
-      const newProduct = {
-        ...formData,
-        name: formData.title,
-      };
-      console.log("formData", newProduct);
-
-      const response = await apiPostRequestAuthenticated(
+      const response = await apiFilePostRequestAuthenticated(
         "/products",
-        newProduct
+        formData
       );
       const { message, product } = response?.data || {};
       setProducts((prev) => [product, ...prev]);
-      console.log("New product added:", newProduct);
     }
     handleCloseModal();
   };
@@ -118,17 +121,34 @@ const Adminproducts = () => {
 
   return (
     <div className="p-4 flex flex-col items-end h-full">
-      <div className="flex gap-4 mb-2">
-        <select className="bg-cyan-300 rounded px-3 py-2 border-2 border-black outline-none">
-          <option disabled selected>
-            Category
-          </option>
-          <option>All</option>
-          <option>Electronics</option>
-          <option>Clothing</option>
-          <option>Books</option>
-        </select>
-        <div className="flex items-center ">
+      <div className="sm:flex gap-4 mb-2 ">
+        <div className="flex items-center gap-2 mb-4">
+          <select
+            value={categoryId}
+            onChange={(e) => {
+              setCategoryId(e.target.value);
+              setPage(1); // category change pe page reset
+            }}
+            className="bg-cyan-300 rounded px-3 py-2 border-2 border-black outline-none"
+          >
+            <option value="">All</option>
+
+            {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => handleOpenModal()}
+            className="border rounded bg-red-500 px-3 py-1.5 text-white flex items-center gap-2 outline-none hover:bg-red-600"
+          >
+            <Plus />
+            Add Product
+          </button>
+        </div>
+        <div className="flex items-center mb-2 ">
           <input
             type="text"
             placeholder="Search Produts..."
@@ -138,13 +158,6 @@ const Adminproducts = () => {
             Search
           </button>
         </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="border rounded bg-red-500 px-3 py-1.5 text-white flex items-center gap-2 outline-none hover:bg-red-600"
-        >
-          <Plus />
-          Add Products
-        </button>
       </div>
       <div className="w-full">
         <ProductsTable
@@ -163,6 +176,14 @@ const Adminproducts = () => {
         product={editingProduct}
         categories={categories}
       />
+      {pagination && (
+        <Pagination
+          page={pagination.page}
+          pages={pagination.pages}
+          onPageChange={setPage}
+          isLoading={loading}
+        />
+      )}
     </div>
   );
 };

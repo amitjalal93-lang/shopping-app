@@ -10,17 +10,17 @@ const ProductModal = ({
   categories,
 }) => {
   const [formData, setFormData] = useState({
-    title: "",
+    name: "",
     price: "",
     category: "",
     description: "",
-    image: "",
+    image: null,
   });
 
   useEffect(() => {
     if (product) {
       setFormData({
-        title: product.title,
+        name: product.name,
         price: product.price,
         category: product.category,
         description: product.description,
@@ -28,11 +28,11 @@ const ProductModal = ({
       });
     } else {
       setFormData({
-        title: "",
+        name: "",
         price: "",
         category: "",
         description: "",
-        image: "",
+        image: null,
       });
     }
   }, [product, isOpen]);
@@ -40,6 +40,11 @@ const ProductModal = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prev) => ({ ...prev, image: file }));
   };
 
   const handleSubmit = (e) => {
@@ -65,11 +70,11 @@ const ProductModal = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold mb-1">Title</label>
+            <label className="block text-sm font-semibold mb-1">Name</label>
             <input
               type="text"
-              name="title"
-              value={formData.title}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500"
@@ -142,8 +147,7 @@ const ProductModal = ({
             <input
               type="file"
               name="image"
-              value={formData.image}
-              onChange={handleChange}
+              onChange={handleImageChange}
               required
               className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500"
             />

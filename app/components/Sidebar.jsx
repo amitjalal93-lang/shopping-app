@@ -7,10 +7,14 @@ import { isUserLoggedIn } from "@/utils/auth";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useUserStore } from "@/store/user";
+import { apiGetRequest } from "@/utils/api";
+import { useAuthStore } from "@/store/authStore";
 const EcommerceHeader = () => {
   const [open, setOpen] = useState(false);
   const [sidebar, setSidebar] = useState(false);
   const [user, setUser] = useState(null);
+
+  const { logout } = useAuthStore();
   const router = useRouter();
 
   const isUserLogin = isUserLoggedIn();
@@ -27,10 +31,11 @@ const EcommerceHeader = () => {
   }, []);
 
   // LOGOUT
-  const logout = () => {
-    localStorage.clear();
-    setUser(null);
-    router.push("/register");
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      router.replace("/login");
+    }
   };
 
   return (
@@ -122,7 +127,7 @@ const EcommerceHeader = () => {
 
       {/* Mobile Dropdown */}
       {open && (
-        <div className="md:hidden fixed top-16 left-0 right-0 bg-slate-300 shadow-lg p-4 space-y-4 z-40">
+        <div className="md:hidden fixed top-16 left-0 right-0 bg-slate-300 shadow-lg p-4 space-y-4 z-50">
           <button
             className="block text-left text-lg hover:bg-amber-600 hover:underline"
             onClick={() => router.push("/shop")}
@@ -166,6 +171,7 @@ const EcommerceHeader = () => {
               </button>
             </div>
           )}
+
           <button
             className="hover:text-orange-400 flex items-center gap-2"
             onClick={() => {
@@ -174,9 +180,9 @@ const EcommerceHeader = () => {
             }}
           >
             Cart
-            {items.length > 0 && (
+            {cartCounter > 0 && (
               <span className="bg-orange-500 text-white text-xs px-2 rounded-full">
-                {items.length}
+                {cartCounter}
               </span>
             )}
           </button>
@@ -228,7 +234,7 @@ const EcommerceHeader = () => {
               {/* SETTINGS */}
               <div className="mt-4 text-left px-2">
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="w-full mt-4 bg-red-500 text-white p-2 rounded-lg"
                 >
                   Logout

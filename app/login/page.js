@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuthStore } from "@/store/authStore";
 import { apiPostRequest } from "@/utils/api";
 import {
   setAccessTokenLocalStorage,
@@ -20,25 +21,19 @@ export default function Signup() {
 
   const router = useRouter();
 
+  const { isLoading, login, isAdmin } = useAuthStore();
+
   const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data) => {
-    const response = await apiPostRequest("auth/login/", data);
-    const { token, user } = response?.data || {};
-    console.log("API Response:", response);
-    const isAdmin = user?.isAdmin;
-    if (token) {
-      setAccessTokenLocalStorage(token);
-    }
-    setUserLocalStorage({
-      email: user.email,
-      fullName: user.fullName,
-      mobile: user.mobile,
-    });
-    if (isAdmin) {
-      router.push("/admin/dashboard");
-    } else {
-      router.push("/");
+    const result = await login(data.email, data.password);
+
+    if (result.success) {
+      if (result.isAdmin) {
+        router.push("/admin/dashboard");
+      } else {
+        router.replace("/");
+      }
     }
   };
 

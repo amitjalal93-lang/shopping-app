@@ -7,11 +7,7 @@ import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/app/firebase";
-import { apiPostRequest } from "@/utils/api";
-import {
-  setAccessTokenLocalStorage,
-  setUserLocalStorage,
-} from "@/utils/localstorage";
+import { useAuthStore } from "../../store/authStore.js";
 
 export default function RegistrationForm() {
   const {
@@ -22,6 +18,7 @@ export default function RegistrationForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const { isLoading, register: registerUser } = useAuthStore();
 
   // Already logged in check
   useEffect(() => {
@@ -29,28 +26,24 @@ export default function RegistrationForm() {
     const googleUser = JSON.parse(localStorage.getItem("googleUser"));
 
     if (user?.loggedIn || googleUser?.loggedIn) {
-      router.push("/"); // Already logged in → Go to home
+      router.replace("/"); // Already logged in → Go to home
     }
   }, []);
 
   // NORMAL FORM SUBMIT
   const onSubmit = async (data) => {
-    const newData = {
-      ...data,
-    };
+    const result = await registerUser(
+      data.fullName,
+      data.email,
+      data.password,
+      data.mobile,
+      data.gender
+    );
 
-    delete newData.terms;
-
-    const response = await apiPostRequest("auth/signup", newData);
-
-    const { user, token } = response?.data || {};
-    setAccessTokenLocalStorage(token);
-    setUserLocalStorage({
-      email: user.email,
-      fullName: user.fullName,
-      mobile: user.mobile,
-    });
-    router.push("/");
+    // if successfully registered
+    if (result?.success) {
+      router.replace("/"); // Go to home
+    }
   };
 
   // GOOGLE LOGIN — name, email, photo save
@@ -74,7 +67,7 @@ export default function RegistrationForm() {
         })
       );
 
-      router.push("/");
+      router.replace("/");
     } catch (err) {
       console.log("Google Login Error:", err);
     }

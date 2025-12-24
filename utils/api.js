@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getAccessTokenLocalStorage } from "./localstorage";
 
-const BASE_URL = "http://localhost:4000/api/";
+export const BASE_URL = "https://ecommerce-api-amit-lgvi.onrender.com/api";
 
 const API = axios.create({
   baseURL: BASE_URL,
@@ -35,8 +35,6 @@ const AUTHENTICATED_FILE_API = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "multipart/form-data",
-    accept: "application/json",
-    "Allowed-State": "na",
   },
 });
 
@@ -100,6 +98,10 @@ export const apiFilePostRequest = async (path, postData) => {
 
 export const apiFilePostRequestAuthenticated = async (path, postData) => {
   return AUTHENTICATED_FILE_API.post(path, postData);
+};
+
+export const apiFilePutRequestAuthenticated = async (path, postData) => {
+  return AUTHENTICATED_FILE_API.put(path, postData);
 };
 
 export const apiDeleteRequestAuthenticated = async (path, postData) => {

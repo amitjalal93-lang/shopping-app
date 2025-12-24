@@ -6,6 +6,7 @@ const CategoryModal = ({ isOpen, onClose, onSave, category = null }) => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    image: null,
   });
 
   useEffect(() => {
@@ -13,11 +14,13 @@ const CategoryModal = ({ isOpen, onClose, onSave, category = null }) => {
       setFormData({
         name: category.name,
         description: category.description,
+        image: category.image,
       });
     } else {
       setFormData({
         name: "",
         description: "",
+        image: null,
       });
     }
   }, [category, isOpen]);
@@ -25,6 +28,11 @@ const CategoryModal = ({ isOpen, onClose, onSave, category = null }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prev) => ({ ...prev, image: file }));
   };
 
   const handleSubmit = (e) => {
@@ -72,6 +80,19 @@ const CategoryModal = ({ isOpen, onClose, onSave, category = null }) => {
               required
               rows="4"
               className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-1">
+              Image URL
+            </label>
+            <input
+              type="file"
+              name="image"
+              onChange={handleImageChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500"
             />
           </div>
 
