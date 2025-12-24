@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 export default function ForgotPassword() {
   const {
     register,
@@ -11,12 +13,29 @@ export default function ForgotPassword() {
     formState: { errors },
   } = useForm();
 
+  const router = useRouter();
+
+  const { user, isAdmin, isCheckingAuth } = useAuthStore();
+
+  // Already logged in check
+  useEffect(() => {
+    if (user) {
+      if (isAdmin) {
+        router.push("/admin/dashboard");
+      } else {
+        router.replace("/");
+      }
+    }
+  }, [user, router, isAdmin]);
+
   const onSubmit = (data) => {
     console.log("Forgot Password Request:", data);
     alert("If this email exists, a reset link will be sent!");
     // ⚙️ Yahan backend API call lagti hai e.g.
     // fetch("/api/forgot-password", { method: "POST", body: JSON.stringify(data) })
   };
+
+  if (isCheckingAuth) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center">

@@ -3,13 +3,13 @@ import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 import { useRouter } from "next/navigation";
-import { isUserLoggedIn } from "@/utils/auth.js";
 import { toast } from "react-toastify";
 import Button from "@/app/components/Button.jsx";
 import { apiGetRequest, apiPostRequestAuthenticated } from "@/utils/api.js";
-import { useUserStore } from "@/store/user.js";
 import Pagination from "@/components/Pagination";
 import { useCategoryStore } from "@/store/categoryStore";
+import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 
 const data = [
   {
@@ -53,21 +53,16 @@ const data = [
 export default function Page() {
   //
   const router = useRouter();
-  const { setCartCounter } = useUserStore();
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
 
   const { categoryId } = useCategoryStore();
+  const { user } = useAuthStore();
+  const { addToCart } = useCartStore();
 
-  const isUserLogin = isUserLoggedIn();
   const handleAdd = async (item) => {
-    if (isUserLogin) {
-      const response = await apiPostRequestAuthenticated("/cart/add", {
-        productId: item._id,
-        quantity: 1,
-      });
-      const { cart } = response?.data || {};
-      setCartCounter(cart.length);
+    if (user) {
+      await addToCart(item._id, 1);
       toast.success("Item added to cart");
     } else {
       toast.error("Please login to add items to cart");

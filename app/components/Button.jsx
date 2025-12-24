@@ -1,7 +1,7 @@
 "use client";
 
-import { isUserLoggedIn } from "@/utils/auth";
-import React, { useState, useEffect } from "react";
+import { useAuthStore } from "@/store/authStore";
+import React from "react";
 import { toast } from "react-toastify";
 
 const Button = ({
@@ -11,18 +11,7 @@ const Button = ({
   checkLogin = true,
   className = "",
 }) => {
-  const [isUserLogin, setIsUserLogin] = useState(false);
-
-  useEffect(() => {
-    // Only run on client side
-    const checkLogin = () => {
-      const logged = isUserLoggedIn();
-      setIsUserLogin(logged);
-    };
-
-    // Run after mount
-    setTimeout(checkLogin, 0);
-  }, []);
+  const { user } = useAuthStore();
 
   let btnClass =
     "bg-orange-600 hover:bg-orange-700 py-2 rounded-lg font-semibold text-white px-4 w-full";
@@ -35,7 +24,7 @@ const Button = ({
   const handleClick = (e) => {
     e.stopPropagation();
 
-    if (!isUserLogin && checkLogin) {
+    if (!user && checkLogin) {
       return toast.error("Please login to proceed");
     }
 

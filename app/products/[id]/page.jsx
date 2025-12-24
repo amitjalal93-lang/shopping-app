@@ -3,14 +3,16 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useParams, useRouter } from "next/navigation";
 import Button from "@/app/components/Button";
-import { apiGetRequest, apiPostRequestAuthenticated } from "@/utils/api";
-import { useUserStore } from "@/store/user";
+import { apiGetRequest } from "@/utils/api";
+import { useCartStore } from "@/store/cartStore";
+import { useAuthStore } from "@/store/authStore";
 
 export default function ProductDetails() {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
-  const { setCartCounter } = useUserStore();
+  const { user } = useAuthStore();
+  const { addToCart } = useCartStore();
 
   useEffect(() => {
     const load = async () => {
@@ -42,13 +44,12 @@ export default function ProductDetails() {
   ];
 
   const handleCart = async () => {
-    const response = await apiPostRequestAuthenticated("/cart/add", {
-      productId: product._id,
-      quantity: 1,
-    });
-    const { cart } = response?.data || {};
-    setCartCounter(cart.length);
-    toast.success("Item added to cart");
+    if (user) {
+      await addToCart(product._id, 1);
+      toast.success("Item added to cart");
+    } else {
+      toast.error("Please login to add items to cart");
+    }
   };
 
   return (

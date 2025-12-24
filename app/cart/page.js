@@ -1,36 +1,17 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 
 import PaymentButton from "../payment/page";
-import {
-  apiDeleteRequestAuthenticated,
-  apiGetRequestAuthenticated,
-  apiPutRequestAuthenticated,
-} from "@/utils/api";
-import { useUserStore } from "@/store/user";
+
+import { useCartStore } from "@/store/cartStore";
 
 export default function CartPage() {
   const router = useRouter();
-  const [items, setItems] = React.useState([]);
-  const [totalMoney, setTotalMoney] = React.useState(0);
-  const { setCartCounter } = useUserStore();
 
-  useEffect(() => {
-    const getCart = async () => {
-      const cartItems = await apiGetRequestAuthenticated("/cart");
-      const { cart, total } = cartItems?.data || {};
-      setTotalMoney(total || 0);
-
-      setItems(cart || []);
-    };
-
-    getCart();
-  }, []);
-
-  // const items = useSelector((state) => state.cart.items);
+  const { clearCart, cart, removeFromCart, updateCartQuantity, totalAmount } =
+    useCartStore();
 
   // PRICE CALCULATION
   const discount = 0;
@@ -45,21 +26,11 @@ export default function CartPage() {
   };
 
   const handleClearCart = async () => {
-    const response = await apiDeleteRequestAuthenticated("/cart/clear");
-    const { cart } = response?.data || {};
-    setItems(cart || []);
-    setCartCounter(0);
+    clearCart();
   };
 
   const handleCart = async (productId, qty) => {
-    const response = await apiPutRequestAuthenticated("/cart/update", {
-      productId: productId,
-      qty,
-    });
-    const { total, cart } = response?.data || {};
-    setItems(cart || []);
-    setCartCounter(cart.length);
-    setTotalMoney(total);
+    updateCartQuantity(productId, qty);
   };
 
   return (
@@ -75,7 +46,7 @@ export default function CartPage() {
       </button>
 
       {/* CLEAR CART BUTTON */}
-      {items.length > 0 && (
+      {cart.length > 0 && (
         <button
           onClick={handleClearCart}
           className="ml-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
@@ -93,7 +64,7 @@ export default function CartPage() {
       <div className="grid md:grid-cols-3 gap-6 mt-4">
         {/* LEFT SIDE – CART ITEMS */}
         <div className="md:col-span-2">
-          {items.map((item) => (
+          {cart.map((item) => (
             <div
               key={item.product._id}
               className="bg-white rounded-xl p-4 mb-4 shadow flex gap-4"
@@ -153,7 +124,9 @@ export default function CartPage() {
                 {/* Quantity Buttons */}
                 <div className="flex items-center gap-3 mt-3">
                   <button
-                    onClick={() => handleCart(item.product._id, item.qty - 1)}
+                    onClick={() =>
+                      item.qty > 1 && handleCart(item.product._id, item.qty - 1)
+                    }
                     className="px-3 py-1 border rounded"
                   >
                     –
@@ -171,7 +144,7 @@ export default function CartPage() {
 
                 {/* Remove */}
                 <button
-                  onClick={() => {}}
+                  onClick={() => removeFromCart(item.product._id)}
                   className="text-red-500 text-sm mt-3 hover:underline"
                 >
                   Remove
@@ -180,7 +153,7 @@ export default function CartPage() {
             </div>
           ))}
 
-          {items.length === 0 && (
+          {cart.length === 0 && (
             <div className="bg-white p-5 rounded-xl shadow h-fit sticky top-24">
               <p className="text-gray-500 text-lg mt-10">
                 Your cart is empty 😔
@@ -196,8 +169,8 @@ export default function CartPage() {
           <h2 className="text-xl font-bold mb-3">Price Details</h2>
 
           <div className="flex justify-between mb-2">
-            <p>Price ({items.length} items)</p>
-            <p>₹{totalMoney.toFixed(0)}</p>
+            <p>Price ({cart.length} items)</p>
+            <p>₹{totalAmount.toFixed(0)}</p>
           </div>
 
           <div className="flex justify-between mb-2">
@@ -214,7 +187,7 @@ export default function CartPage() {
 
           <div className="flex justify-between font-bold text-lg">
             <p>Total Amount</p>
-            <p>₹{(totalMoney - discount).toFixed(0)}</p>
+            <p>₹{(totalAmount - discount).toFixed(0)}</p>
           </div>
 
           {/* <button className="w-full bg-orange-600 hover:bg-orange-700 py-2 mt-4 rounded-lg font-semibold text-white">

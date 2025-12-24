@@ -20,15 +20,16 @@ const Adminproducts = () => {
   const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
+  const [search, setSearch] = useState("");
 
   const { categoryId, setCategoryId } = useCategoryStore();
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const url = categoryId
-          ? `/products?page=${page}&limit=10&category=${categoryId}`
-          : `/products?page=${page}&limit=10`;
+        const url = `/products?page=${page}&limit=10&category=${
+          categoryId || ""
+        }&search=${search}`;
 
         const res = await apiGetRequest(url);
         const { pagination, products } = res?.data || {};
@@ -50,7 +51,7 @@ const Adminproducts = () => {
     };
 
     load();
-  }, [page, categoryId]); // 👈 categoryId add
+  }, [page, categoryId, search]); // 👈 categoryId add
 
   useEffect(() => {
     const getCategories = async () => {
@@ -153,6 +154,8 @@ const Adminproducts = () => {
             type="text"
             placeholder="Search Produts..."
             className="border px-3 py-1 rounded"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <button className="border rounded bg-green-400 px-3 py-1 text-white outline-none">
             Search

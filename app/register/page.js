@@ -18,17 +18,23 @@ export default function RegistrationForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { isLoading, register: registerUser } = useAuthStore();
+  const {
+    user,
+    register: registerUser,
+    isAdmin,
+    isCheckingAuth,
+  } = useAuthStore();
 
   // Already logged in check
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const googleUser = JSON.parse(localStorage.getItem("googleUser"));
-
-    if (user?.loggedIn || googleUser?.loggedIn) {
-      router.replace("/"); // Already logged in → Go to home
+    if (user) {
+      if (isAdmin) {
+        router.push("/admin/dashboard");
+      } else {
+        router.replace("/");
+      }
     }
-  }, []);
+  }, [user, router, isAdmin]);
 
   // NORMAL FORM SUBMIT
   const onSubmit = async (data) => {
@@ -72,6 +78,8 @@ export default function RegistrationForm() {
       console.log("Google Login Error:", err);
     }
   };
+
+  if (isCheckingAuth) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center text-white">

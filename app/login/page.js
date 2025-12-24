@@ -1,14 +1,9 @@
 "use client";
 
 import { useAuthStore } from "@/store/authStore";
-import { apiPostRequest } from "@/utils/api";
-import {
-  setAccessTokenLocalStorage,
-  setUserLocalStorage,
-} from "@/utils/localstorage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 
@@ -21,9 +16,7 @@ export default function Signup() {
 
   const router = useRouter();
 
-  const { isLoading, login, isAdmin } = useAuthStore();
-
-  const [showPassword, setShowPassword] = useState(false);
+  const { user, login, isCheckingAuth, isAdmin } = useAuthStore();
 
   const onSubmit = async (data) => {
     const result = await login(data.email, data.password);
@@ -36,6 +29,18 @@ export default function Signup() {
       }
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      if (isAdmin) {
+        router.push("/admin/dashboard");
+      } else {
+        router.replace("/");
+      }
+    }
+  }, [user, router, isAdmin]);
+
+  if (isCheckingAuth) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center  text-white">

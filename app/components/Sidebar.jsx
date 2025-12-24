@@ -1,40 +1,35 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { isUserLoggedIn } from "@/utils/auth";
-import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useUserStore } from "@/store/user";
-import { apiGetRequest } from "@/utils/api";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 const EcommerceHeader = () => {
   const [open, setOpen] = useState(false);
   const [sidebar, setSidebar] = useState(false);
-  const [user, setUser] = useState(null);
 
-  const { logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const { cartCounter } = useCartStore();
+
   const router = useRouter();
 
-  const isUserLogin = isUserLoggedIn();
-
-  const { cartCounter } = useUserStore();
-
   // Load user from localStorage
-  useEffect(() => {
-    const normalUser = JSON.parse(localStorage.getItem("user"));
-    const googleUser = JSON.parse(localStorage.getItem("googleUser"));
+  // useEffect(() => {
+  //   const normalUser = JSON.parse(localStorage.getItem("user"));
+  //   const googleUser = JSON.parse(localStorage.getItem("googleUser"));
 
-    if (googleUser?.loggedIn) setUser(googleUser);
-    else if (normalUser) setUser(normalUser);
-  }, []);
+  //   if (googleUser?.loggedIn) setUser(googleUser);
+  //   else if (normalUser) setUser(normalUser);
+  // }, []);
 
   // LOGOUT
   const handleLogout = async () => {
     const result = await logout();
     if (result.success) {
-      router.replace("/login");
+      setSidebar(false);
+      router.replace("/");
     }
   };
 
@@ -68,7 +63,7 @@ const EcommerceHeader = () => {
 
         {/* Desktop Right */}
         <div className="hidden md:flex items-center gap-6 text-white font-medium">
-          {isUserLogin ? (
+          {user ? (
             <button
               className="block w-full text-left text-lg"
               onClick={() => setSidebar(true)}
@@ -95,7 +90,7 @@ const EcommerceHeader = () => {
           <button
             className="hover:text-orange-400 flex items-center gap-2"
             onClick={() => {
-              if (isUserLogin) router.push("/cart");
+              if (user) router.push("/cart");
               else toast.error("Please login to view cart");
             }}
           >
@@ -148,7 +143,7 @@ const EcommerceHeader = () => {
           </button>
           <hr className="border-slate-600" />
 
-          {isUserLogin ? (
+          {user ? (
             <button
               className="block w-full text-left text-lg"
               onClick={() => setSidebar(true)}
