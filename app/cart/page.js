@@ -4,6 +4,8 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useCartStore } from "@/store/cartStore";
+import { apiPostRequestAuthenticated } from "@/utils/api";
+import { toast } from "react-toastify";
 
 export default function CartPage() {
   const router = useRouter();
@@ -188,7 +190,39 @@ export default function CartPage() {
             <p>₹{(totalAmount - discount).toFixed(0)}</p>
           </div>
           {/* payment button */}
-          <button className="w-full bg-orange-600 hover:bg-orange-700 py-2 mt-4 rounded-lg font-semibold text-white">
+          <button
+            onClick={async () => {
+              try {
+                if (cart.length === 0) {
+                  toast.error("Please add some items to your cart.");
+                  return;
+                }
+                // create order on backend (server will use user's cart)
+                const items = cart.map((item) => ({
+                  product: item.product._id,
+                  qty: item.qty,
+                  price: item.product.price,
+                }));
+                const payload = { items, amount: totalAmount };
+                const res = await apiPostRequestAuthenticated(
+                  "/orders/create",
+                  payload
+                );
+                const order = res?.data?.order || res?.data;
+                const orderId = order?._id || order?.id || order?.orderId;
+                if (!orderId) {
+                  alert("Could not create order. Try again.");
+                  return;
+                }
+                // navigate to checkout with orderId
+                router.push(`/checkout?orderId=${orderId}`);
+              } catch (error) {
+                console.error(error);
+                alert("Error creating order. Check console.");
+              }
+            }}
+            className="w-full bg-orange-600 hover:bg-orange-700 py-2 mt-4 rounded-lg font-semibold text-white"
+          >
             Proceed to Payment
           </button>
         </div>

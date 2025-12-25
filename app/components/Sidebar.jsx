@@ -107,6 +107,7 @@ const EcommerceHeader = () => {
               </span>
             )}
           </button>
+          <button onClick={() => router.push("/myorders")}>Orders</button>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -187,6 +188,7 @@ const EcommerceHeader = () => {
               </span>
             )}
           </button>
+          <button onClick={() => router.push("/myorders")}>Orders</button>
         </div>
       )}
 
