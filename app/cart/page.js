@@ -3,8 +3,6 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import PaymentButton from "../payment/page";
-
 import { useCartStore } from "@/store/cartStore";
 
 export default function CartPage() {
@@ -189,17 +187,10 @@ export default function CartPage() {
             <p>Total Amount</p>
             <p>₹{(totalAmount - discount).toFixed(0)}</p>
           </div>
-
-          {/* <button className="w-full bg-orange-600 hover:bg-orange-700 py-2 mt-4 rounded-lg font-semibold text-white">
-            Proceed to Payment
-          </button> */}
           {/* payment button */}
-          <PaymentButton
-            cartItems={[
-              { name: "T-shirt", price: 999, qty: 1, image: "/img1.png" },
-              { name: "Shoes", price: 1999, qty: 1, image: "/img2.png" },
-            ]}
-          />
+          <button className="w-full bg-orange-600 hover:bg-orange-700 py-2 mt-4 rounded-lg font-semibold text-white">
+            Proceed to Payment
+          </button>
         </div>
       </div>
     </div>

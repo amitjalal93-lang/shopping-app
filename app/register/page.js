@@ -8,6 +8,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/app/firebase";
 import { useAuthStore } from "../../store/authStore.js";
+import { toast } from "react-toastify";
+import { useCartStore } from "@/store/cartStore.js";
 
 export default function RegistrationForm() {
   const {
@@ -24,6 +26,7 @@ export default function RegistrationForm() {
     isAdmin,
     isCheckingAuth,
   } = useAuthStore();
+  const { fetchCart } = useCartStore();
 
   // Already logged in check
   useEffect(() => {
@@ -48,7 +51,10 @@ export default function RegistrationForm() {
 
     // if successfully registered
     if (result?.success) {
+      fetchCart();
       router.replace("/"); // Go to home
+    } else {
+      toast.error(result?.error);
     }
   };
 
@@ -57,23 +63,20 @@ export default function RegistrationForm() {
     try {
       const result = await signInWithPopup(auth, provider);
 
+      console.log(result);
+
       const name = result.user.displayName;
       const email = result.user.email;
-      const photo = result.user.photoURL;
+      const phone = result.user.phoneNumber;
+      const password = result.user.uid;
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: name,
-          email: email,
-          photo: photo,
-          number: null,
-          gender: null,
-          loggedIn: true,
-        })
-      );
-
-      router.replace("/");
+      onSubmit({
+        fullName: name,
+        email,
+        password,
+        mobile: phone,
+        gender: "",
+      });
     } catch (err) {
       console.log("Google Login Error:", err);
     }
@@ -167,18 +170,12 @@ export default function RegistrationForm() {
         {/* Gender */}
         <div className="mb-4">
           <label className="block mb-1 font-medium">Gender</label>
-          <select
-            {...register("gender", { required: "Please select gender" })}
-            className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
-          >
+          <select className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500">
             <option value="">Select...</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
           </select>
-          {errors.gender && (
-            <p className="text-red-400 text-sm mt-1">{errors.gender.message}</p>
-          )}
         </div>
 
         {/* Terms */}
@@ -200,7 +197,7 @@ export default function RegistrationForm() {
           onClick={handleGoogleLogin}
           className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-3"
         >
-          Login with Google
+          SignUp with Google
         </button>
 
         {/* Submit */}

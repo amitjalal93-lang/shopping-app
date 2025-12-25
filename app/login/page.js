@@ -1,9 +1,12 @@
 "use client";
 
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
+import { signInWithPopup } from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { auth, provider } from "@/app/firebase";
 
 import { useForm } from "react-hook-form";
 
@@ -17,6 +20,7 @@ export default function Signup() {
   const router = useRouter();
 
   const { user, login, isCheckingAuth, isAdmin } = useAuthStore();
+  const { fetchCart } = useCartStore();
 
   const onSubmit = async (data) => {
     const result = await login(data.email, data.password);
@@ -27,6 +31,7 @@ export default function Signup() {
       } else {
         router.replace("/");
       }
+      fetchCart();
     }
   };
 
@@ -39,6 +44,23 @@ export default function Signup() {
       }
     }
   }, [user, router, isAdmin]);
+  // goggle login
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log(result);
+      const email = result.user.email;
+      const password = result.user.uid;
+
+      onSubmit({
+        email,
+        password,
+      });
+    } catch (err) {
+      console.log("Google Login Error:", err);
+    }
+  };
 
   if (isCheckingAuth) return null;
 
@@ -86,6 +108,14 @@ export default function Signup() {
             </p>
           )}
         </div>
+        {/* Google Login */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-3"
+        >
+          Login with Google
+        </button>
         {/* Submit */}
         <button
           type="submit"
@@ -93,7 +123,7 @@ export default function Signup() {
         >
           Login Now
         </button>
-        <p className="text-center mt-4">
+        <p className="text-center mt-4 flex gap-1.5">
           Don&apos;t have an account?
           <Link
             href="/register"

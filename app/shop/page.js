@@ -34,7 +34,7 @@ export default function ShopPage() {
           >
             <img src={p.image} className="h-36 mx-auto object-contain" />
             <h2 className="font-semibold mt-2 line-clamp-2">{p.name}</h2>
-            <p className="text-orange-600 font-bold mt-1">₹{p.price}</p>
+            <p className="text-orange-600 font-bold mt-1 ">₹{p.price}</p>
             <button
               className="mt-4 bg-green-500 px-6 py-2 text-white rounded hover:bg-green-600 "
               onClick={() => {

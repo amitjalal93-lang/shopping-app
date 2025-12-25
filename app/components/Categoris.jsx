@@ -21,20 +21,12 @@ const Categoris = () => {
 
   return (
     <div className="fixed top-16 left-0 right-0 z-40">
-      <div
-        className="
-    flex gap-2
-    overflow-x-auto
-    whitespace-nowrap
-    px-3 py-2
-    border-b border-black
-    bg-[#313131]
-    scrollbar-hide
-  "
-      >
+      <div className="flex gap-2 overflow-x-auto whitespace-nowrap px-3 py-2 border-b border-black bg-[#313131] scrollbar-hide sm:justify-center">
         <button
           onClick={() => setCategoryId("")}
-          className="px-4 py-1.5 rounded-md text-white text-sm font-medium hover:bg-[#4a4a4a]"
+          className={`px-4 py-1.5 rounded-md text-white text-sm font-medium hover:bg-[#4a4a4a] 
+          ${categoryId === "" ? "bg-[#4a4a4a]" : ""}
+          `}
         >
           All
         </button>

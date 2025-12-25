@@ -13,7 +13,7 @@ import { useCartStore } from "@/store/cartStore";
 
 const data = [
   {
-    id: 1,
+    id: "694ccb8cb52696a0d6f693df",
     title1: "Next-Level Gaming Starts",
     title2: "Here Discover PlayStation",
     title3: "5 Today!",
@@ -25,7 +25,7 @@ const data = [
     basePrice: 899,
   },
   {
-    id: 2,
+    id: "694bb15677eda7dad74273c0",
     title1: "Power Meets Elegance",
     title2: "Apple MacBook Pro Is Here",
     title3: "For You!",
@@ -37,7 +37,7 @@ const data = [
     basePrice: 1299,
   },
   {
-    id: 3,
+    id: "694bb3f277eda7dad74273c7",
     title1: "Experience Pure Sound",
     title2: "Your Perfect Headphones",
     title3: "Awaits!",
@@ -94,7 +94,7 @@ export default function Page() {
       setLoading(true);
       try {
         const res = await apiGetRequest(
-          `/products?page=${page}&limit=15&category=${categoryId}`
+          `/products?page=${page}&limit=16&category=${categoryId}`
         );
         const { pagination, products } = res?.data || {};
 
@@ -163,7 +163,7 @@ export default function Page() {
                     className="w-fit! px-4 py-2 md:px-6 md:py-3 bg-orange-500 text-white rounded-lg shadow"
                     text={item.button}
                     onClick={() => {
-                      router.push("/");
+                      router.push(`/products/${item.id}`);
                     }}
                   />
                 </div>
@@ -199,7 +199,7 @@ export default function Page() {
       {loading ? (
         <p className="text-center text-gray-400">Loading products...</p>
       ) : (
-        <div className="grid grid-cols sm:grid-cols-2 md:grid-cols-4 gap-4 my-8">
+        <div className="grid grid-cols sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-4 my-8">
           {products?.map((p) => (
             <motion.div
               key={p._id}

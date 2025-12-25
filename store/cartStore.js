@@ -86,4 +86,5 @@ export const useCartStore = create((set) => ({
       console.error("Error updating cart quantity:", error);
     }
   },
+  resetCart: () => set({ cart: [], cartCounter: 0, totalAmount: 0 }),
 }));

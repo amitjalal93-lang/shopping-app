@@ -55,10 +55,11 @@ export const useAuthStore = create((set) => ({
       };
     } catch (error) {
       console.log(error);
+
       set({ isLoading: false });
       return {
         success: false,
-        error: error.message,
+        error: error.response.data.message || error.message,
       };
     }
   },
@@ -91,7 +92,7 @@ export const useAuthStore = create((set) => ({
       set({ isLoading: false });
       return {
         success: false,
-        error: error.message,
+        error: error.response.data.message || error.message,
       };
     }
   },
@@ -109,7 +110,7 @@ export const useAuthStore = create((set) => ({
       console.log(error);
       return {
         success: false,
-        error: error.message,
+        error: error.response.data.message || error.message,
       };
     }
   },

@@ -6,13 +6,15 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
+import Link from "next/link";
+import { useCategoryStore } from "@/store/categoryStore";
 const EcommerceHeader = () => {
   const [open, setOpen] = useState(false);
   const [sidebar, setSidebar] = useState(false);
 
   const { user, logout } = useAuthStore();
-  const { cartCounter } = useCartStore();
-
+  const { cartCounter, resetCart } = useCartStore();
+  const { setCategoryId } = useCategoryStore();
   const router = useRouter();
 
   // Load user from localStorage
@@ -29,6 +31,8 @@ const EcommerceHeader = () => {
     const result = await logout();
     if (result.success) {
       setSidebar(false);
+      resetCart();
+      setCategoryId("");
       router.replace("/");
     }
   };
@@ -37,7 +41,9 @@ const EcommerceHeader = () => {
     <>
       {/* Main Header */}
       <div className="fixed top-0 left-0 right-0 h-16 p-4 shadow flex justify-between items-center bg-blue-400 z-40">
-        <h1 className="text-2xl font-bold text-white">Shopping App</h1>
+        <Link href="/" className="text-2xl font-bold text-white">
+          Shopping App
+        </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex gap-8 text-white font-medium">
@@ -170,7 +176,7 @@ const EcommerceHeader = () => {
           <button
             className="hover:text-orange-400 flex items-center gap-2"
             onClick={() => {
-              if (isUserLogin) router.push("/cart");
+              if (user) router.push("/cart");
               else toast.error("Please login to view cart");
             }}
           >
