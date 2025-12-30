@@ -94,7 +94,7 @@ export default function Page() {
       setLoading(true);
       try {
         const res = await apiGetRequest(
-          `/products?page=${page}&limit=16&category=${categoryId}`
+          `/products?page=${page}&limit=12&category=${categoryId}`
         );
         const { pagination, products } = res?.data || {};
 

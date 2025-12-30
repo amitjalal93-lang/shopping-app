@@ -17,13 +17,6 @@ export default function CartPage() {
   const discount = 0;
 
   // ✔ CORRECT SIZE PRICE LOGIC (NO MULTIPLIER)
-  const getSizePrice = (basePrice, size) => {
-    if (size === "S") return basePrice - 50; // 1200 → 1150
-    if (size === "M") return basePrice; // 1200
-    if (size === "L") return basePrice + 30; // 1200 → 1230
-    if (size === "XL") return basePrice + 50; // 1200 → 1250
-    return basePrice;
-  };
 
   const handleClearCart = async () => {
     clearCart();
@@ -75,48 +68,13 @@ export default function CartPage() {
               />
 
               <div className="flex-1">
-                <h2 className="font-bold text-lg">{item.product.name}</h2>
-                <p className="text-sm text-gray-500 line-clamp-2">
-                  {item.description}
-                </p>
-
-                {/* SIZE SELECTOR */}
-                {item.category === "men's clothing" ||
-                item.category === "women's clothing" ||
-                item.category === "clothing" ||
-                item.category === "fashion" ? (
-                  <div className="mt-3">
-                    <p className="font-semibold mb-1">Select Size:</p>
-
-                    <select
-                      value={item.size}
-                      onChange={(e) =>
-                        dispatch(
-                          updateSize({
-                            id: item.id,
-                            newSize: e.target.value,
-                            newPrice: getSizePrice(
-                              item.basePrice,
-                              e.target.value
-                            ),
-                          })
-                        )
-                      }
-                      className="border rounded px-2 py-1"
-                    >
-                      <option value="S">S</option>
-                      <option value="M">M</option>
-                      <option value="L">L</option>
-                      <option value="XL">XL</option>
-                    </select>
-                  </div>
-                ) : null}
+                <h2 className="font-bold text-lg ">{item.product.name}</h2>
 
                 {/* ✔ FIXED PRICE DISPLAY */}
                 <p className="font-semibold text-orange-600 mt-2">
                   ₹{item.product.price.toFixed(0)}
                 </p>
-
+                {/* rating */}
                 <p className="text-yellow-500 text-sm">
                   ⭐ {item.product?.rating ?? 4.5} / 5
                 </p>
